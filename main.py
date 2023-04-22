@@ -12,7 +12,6 @@ log = logging.getLogger()
 if __name__ == '__main__':
     host = Host('remote01')
     host.connect()
-    # host.get_file('/root/anaconda-ks.cfg', 'download/anaconda-ks.cfg')
     s_time = time.time()
     host.get_file('/data/files', 'download/post2')
     e_time = time.time()

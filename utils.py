@@ -1,8 +1,5 @@
 import logging
-import os
 import time
-from typing import Generator
-
 
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(format=LOG_FORMAT, level=logging.INFO)
