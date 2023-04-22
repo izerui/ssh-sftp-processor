@@ -1,14 +1,9 @@
-import concurrent
 import os
 import stat
-from concurrent.futures import ThreadPoolExecutor
 from configparser import ConfigParser
-from multiprocessing.pool import ThreadPool
+from typing import Tuple
 
 import paramiko
-from paramiko.sftp_client import SFTPClient
-
-from utils import log_time
 
 config = ConfigParser()
 config.read('config.ini')
@@ -17,6 +12,7 @@ config.read('config.ini')
 class Host:
 
     def __init__(self, host_key):
+        self.host_key = host_key
         self.ssh_host = config.get(host_key, 'ssh_host')
         self.ssh_port = int(config.get(host_key, 'ssh_port'))
         self.ssh_user = config.get(host_key, 'ssh_user')
@@ -36,7 +32,6 @@ class Host:
         with self.client.open_sftp() as sftp:
             callback(sftp)
 
-    @log_time
     def get_file(self, remote_path, local_path):
         self._get_file_list(remote_path, local_path, self.client.open_sftp())
 
@@ -51,8 +46,20 @@ class Host:
             sftp.get(remote_path, local_path)
             print(remote_path, ' - successed')
 
-
-
     def put_file(self, local_file, remote_file):
-        with self.client.open_sftp() as sftp:
-            sftp.put(local_file, remote_file)
+        # TODO
+        pass
+
+    def exe_commands(self, commands, callback=None):
+        for command in commands:
+            print(f'[{self.ssh_user}@{self.ssh_host} ~]#' + command)
+            (stdin, stdout, stderr) = self.client.exec_command(command, get_pty=True)
+
+            while not stdout.channel.exit_status_ready():
+                line = stdout.readline()
+                if line:
+                    print(f'[{self.ssh_user}@{self.ssh_host} ~]#' + line, end='')
+                    if callback:
+                        callback({'command': command, 'line': line})
+                if stdout.channel.exit_status_ready():
+                    break
