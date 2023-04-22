@@ -1,0 +1,8 @@
+dist/
+venv/
+build/
+dumps/
+config.ini
+download/
+.idea/
+*.log
