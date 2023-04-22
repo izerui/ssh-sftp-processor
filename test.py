@@ -13,18 +13,17 @@ class TestTable(unittest.TestCase):
             host.close()
 
     def _host(self, host_key):
-        finders = list(filter(lambda x: x['host_key'] == host_key, self.hosts))
-        if finders:
-            host = finders[0]
-        else:
-            host = Host(host_key)
-            host.connect()
-            self.hosts.append(host)
+        host = Host(host_key)
+        host.connect()
+        self.hosts.append(host)
         return host
 
+    def test_join_k8s(self):
+        self._host('master201').exe_commands(['kubeadm token create --print-join-command'],
+                                         lambda t: self._host('node204').exe_commands([t['line']]))
 
     def test_init_k8s_node(self):
-        my_host = self._host('node204')
+        my_host = self._host('node212')
         commands = [
             'systemctl stop firewalld.service',
             'systemctl disable firewalld.service',
@@ -39,5 +38,3 @@ class TestTable(unittest.TestCase):
             'curl -sSL https://file.yj2025.com/install_kubelet.sh | sh -s 1.20.12',
         ]
         my_host.exe_commands(commands)
-        # self._host('master201').exe_commands(['kubeadm token create --print-join-command'],
-        #                                      lambda t: my_host.exe_commands([t['line']]))

@@ -52,13 +52,13 @@ class Host:
 
     def exe_commands(self, commands, callback=None):
         for command in commands:
-            print(f'[{self.ssh_user}@{self.ssh_host} ~]#' + command)
+            print(f'[{self.ssh_user}@{self.ssh_host} 输入]#' + command)
             (stdin, stdout, stderr) = self.client.exec_command(command, get_pty=True)
 
             while not stdout.channel.exit_status_ready():
                 line = stdout.readline()
                 if line:
-                    print(f'[{self.ssh_user}@{self.ssh_host} ~]#' + line, end='')
+                    print(f'[{self.ssh_user}@{self.ssh_host} 输出]#' + line, end='')
                     if callback:
                         callback({'command': command, 'line': line})
                 if stdout.channel.exit_status_ready():
